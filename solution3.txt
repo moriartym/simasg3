@@ -1,0 +1,98 @@
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 3.5.0
+      /_/
+         
+Using Scala version 2.12.18 (OpenJDK 64-Bit Server VM, Java 1.8.0_462)
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> val salesRDD = sc.textFile("hdfs://localhost:9000/user/darren/input/sales.txt")
+salesRDD: org.apache.spark.rdd.RDD[String] = hdfs://localhost:9000/user/darren/input/sales.txt MapPartitionsRDD[1] at textFile at <console>:23
+
+scala> salesRDD.collect().foreach(println)
+bolt 45
+washer 3
+screw 67
+screw 23
+nail 5
+screw 78
+bolt 5
+bolt 1
+drill 1
+drill 1
+washer 56
+washer 7
+
+scala> val pairRDD = salesRDD.map(line => {
+     |     val p = line.split(" ")
+     |     (p(0), p(1).toInt)
+     | })
+pairRDD: org.apache.spark.rdd.RDD[(String, Int)] = MapPartitionsRDD[2] at map at <console>:23
+
+scala> val totals = pairRDD.reduceByKey(_ + _)
+totals: org.apache.spark.rdd.RDD[(String, Int)] = ShuffledRDD[3] at reduceByKey at <console>:23
+
+scala> totals.collect().foreach(println)
+(screw,168)
+(nail,5)
+(washer,66)
+(bolt,51)
+(drill,2)
+
+scala> 
+
+scala> case class Sale(part: String, qty: Int)
+defined class Sale
+
+scala> 
+
+scala> import spark.implicits._
+import spark.implicits._
+
+scala> val salesDS = spark.read.textFile("hdfs://localhost:9000/user/darren/input/sales.txt").map(line => { val p = line.split(" "); Sale(p(0), p(1).toInt) })
+salesDS: org.apache.spark.sql.Dataset[Sale] = [part: string, qty: int]
+
+scala> salesDS.printSchema()
+root
+ |-- part: string (nullable = true)
+ |-- qty: integer (nullable = false)
+
+
+scala> salesDS.show()
++------+---+
+|  part|qty|
++------+---+
+|  bolt| 45|
+|washer|  3|
+| screw| 67|
+| screw| 23|
+|  nail|  5|
+| screw| 78|
+|  bolt|  5|
+|  bolt|  1|
+| drill|  1|
+| drill|  1|
+|washer| 56|
+|washer|  7|
++------+---+
+
+
+scala> val totalsDS = salesDS.groupBy("part").sum("qty")
+totalsDS: org.apache.spark.sql.DataFrame = [part: string, sum(qty): bigint]
+
+scala> totalsDS.show()
++------+--------+
+|  part|sum(qty)|
++------+--------+
+|washer|      66|
+|  bolt|      51|
+|  nail|       5|
+| screw|     168|
+| drill|       2|
++------+--------+
+
+
+scala> 

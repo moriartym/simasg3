@@ -1,0 +1,71 @@
+scala> val salesDF = spark.read.text("hdfs://localhost:9000/user/darren/input/sales.txt")
+salesDF: org.apache.spark.sql.DataFrame = [value: string]
+
+scala> salesDF.show()
++---------+
+|    value|
++---------+
+|  bolt 45|
+| washer 3|
+| screw 67|
+| screw 23|
+|   nail 5|
+| screw 78|
+|   bolt 5|
+|   bolt 1|
+|  drill 1|
+|  drill 1|
+|washer 56|
+| washer 7|
++---------+
+
+
+scala> import org.apache.spark.sql.functions._
+import org.apache.spark.sql.functions._
+
+scala> val salesDF2 = salesDF.withColumn("part", split(col("value"), " ")(0)).withColumn("qty",  split(col("value"), " ")(1).cast("int")).select("part", "qty")
+salesDF2: org.apache.spark.sql.DataFrame = [part: string, qty: int]
+
+scala> salesDF2.show()
++------+---+
+|  part|qty|
++------+---+
+|  bolt| 45|
+|washer|  3|
+| screw| 67|
+| screw| 23|
+|  nail|  5|
+| screw| 78|
+|  bolt|  5|
+|  bolt|  1|
+| drill|  1|
+| drill|  1|
+|washer| 56|
+|washer|  7|
++------+---+
+
+
+scala> salesDF2.printSchema()
+root
+ |-- part: string (nullable = true)
+ |-- qty: integer (nullable = true)
+
+
+scala> salesDF2.createOrReplaceTempView("sales")
+
+scala> val totalsSQL = spark.sql("SELECT part, SUM(qty) AS total_qty FROM sales GROUP BY part")
+totalsSQL: org.apache.spark.sql.DataFrame = [part: string, total_qty: bigint]
+
+scala> totalsSQL.show()
++------+---------+
+|  part|total_qty|
++------+---------+
+|washer|       66|
+|  bolt|       51|
+|  nail|        5|
+| screw|      168|
+| drill|        2|
++------+---------+
+
+
+scala> 
