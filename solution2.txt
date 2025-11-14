@@ -1,0 +1,97 @@
+hbase:001:0> # (1)
+hbase:002:0> get 'task2', 'position|312'
+COLUMN  CELL
+ POSITION:position-number timestamp=2025-11-14T06:47:22.098, value=312
+ POSITION:salary timestamp=2025-11-14T06:47:22.106, value=600000
+ POSITION:title timestamp=2025-11-14T06:47:22.101, value=Big Data Manager
+1 row(s)
+Took 0.3664 seconds
+hbase:003:0> 
+hbase:004:0> # (2)
+hbase:005:0> get 'task2', 'application|007|312|SIM|01'
+COLUMN  CELL
+ APPLICANT:number timestamp=2025-11-14T06:47:22.226, value=007
+ APPLICATION:application-number timestamp=2025-11-14T06:47:22.181, value=01
+ APPLICATION:education-level timestamp=2025-11-14T06:47:22.207, value=high
+ APPLICATION:total-skills timestamp=2025-11-14T06:47:22.187, value=5
+ EMPLOYER:ename timestamp=2025-11-14T06:47:22.230, value=SIM
+ POSITION:position-number timestamp=2025-11-14T06:47:22.221, value=312
+1 row(s)
+Took 0.0054 seconds
+hbase:006:0> 
+hbase:007:0> # (3)
+hbase:008:0> disable 'task2'
+Took 0.3871 seconds
+hbase:009:0> alter 'task2', {NAME => 'EMPLOYER', METHOD => 'delete'}
+Updating all regions with the new schema...
+All regions updated.
+Done.
+Took 1.0966 seconds
+hbase:010:0> enable 'task2'
+Took 0.6255 seconds
+hbase:011:0> 
+hbase:012:0> get 'task2', 'application|007|312|SIM|01'
+COLUMN  CELL
+ APPLICANT:number timestamp=2025-11-14T06:47:22.226, value=007
+ APPLICATION:application-number timestamp=2025-11-14T06:47:22.181, value=01
+ APPLICATION:education-level timestamp=2025-11-14T06:47:22.207, value=high
+ APPLICATION:total-skills timestamp=2025-11-14T06:47:22.187, value=5
+ POSITION:position-number timestamp=2025-11-14T06:47:22.221, value=312
+1 row(s)
+Took 0.0056 seconds
+hbase:013:0> 
+hbase:014:0> # (4)
+hbase:015:0> put 'task2', 'position|312', 'POSITION:total-apps', '2'
+Took 0.0170 seconds
+hbase:016:0> put 'task2', 'position|313', 'POSITION:total-apps', '1'
+Took 0.0024 seconds
+hbase:017:0> 
+hbase:018:0> get 'task2', 'position|312'
+COLUMN  CELL
+ POSITION:position-number timestamp=2025-11-14T06:47:22.098, value=312
+ POSITION:salary timestamp=2025-11-14T06:47:22.106, value=600000
+ POSITION:title timestamp=2025-11-14T06:47:22.101, value=Big Data Manager
+ POSITION:total-apps timestamp=2025-11-14T06:47:37.247, value=2
+1 row(s)
+Took 0.0067 seconds
+hbase:019:0> get 'task2', 'position|313'
+COLUMN  CELL
+ POSITION:position-number timestamp=2025-11-14T06:47:22.113, value=313
+ POSITION:salary timestamp=2025-11-14T06:47:22.135, value=700000
+ POSITION:title timestamp=2025-11-14T06:47:22.125, value=Very Big Data Manager
+ POSITION:total-apps timestamp=2025-11-14T06:47:37.256, value=1
+1 row(s)
+Took 0.0088 seconds
+hbase:020:0> 
+hbase:021:0> # (5)
+hbase:022:0> disable 'task2'
+Took 0.3311 seconds
+hbase:023:0> alter 'task2', {NAME => 'APPLICANT', VERSIONS => 5}
+Updating all regions with the new schema...
+All regions updated.
+Done.
+Took 1.0479 seconds
+hbase:024:0> enable 'task2'
+Took 0.6230 seconds
+hbase:025:0> 
+hbase:026:0> describe 'task2'
+Table task2 is ENABLED
+task2, {TABLE_ATTRIBUTES => {METADATA => {'hbase.store.file-tracker.impl' => 'DEFAULT'}}}
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'APPLICANT', INDEX_BLOCK_ENCODING => 'NONE', VERSIONS => '5', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', MIN_VERSIONS => '0', REPLICATION_SCOPE => '0', BLOOMFILTER => 'ROW', IN_MEMORY => 'false', COMPRESSION => 'NONE', BLOCKCACHE => 'true', BLOCKSIZE => '65536 B (64KB)'}
+
+{NAME => 'APPLICATION', INDEX_BLOCK_ENCODING => 'NONE', VERSIONS => '1', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', MIN_VERSIONS => '0', REPLICATION_SCOPE => '0', BLOOMFILTER => 'ROW', IN_MEMORY => 'false', COMPRESSION => 'NONE', BLOCKCACHE => 'true', BLOCKSIZE => '65536 B (64KB)'}
+
+{NAME => 'POSITION', INDEX_BLOCK_ENCODING => 'NONE', VERSIONS => '1', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', MIN_VERSIONS => '0', REPLICATION_SCOPE => '0', BLOOMFILTER => 'ROW', IN_MEMORY => 'false', COMPRESSION => 'NONE', BLOCKCACHE => 'true', BLOCKSIZE => '65536 B (64KB)'}
+
+3 row(s)
+Quota is disabled
+Took 0.0260 seconds
+hbase:027:0> 
+HBase Shell
+Use "help" to get list of supported commands.
+Use "exit" to quit this interactive shell.
+For Reference, please visit: http://hbase.apache.org/2.0/book.html#shell
+Version 2.5.12, r3c34f7a029b3b317478eb05b486ece7c77b341e4, Fri Jul 18 12:39:09 PDT 2025
+Took 0.0019 seconds
+hbase:001:0> 
